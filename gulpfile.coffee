@@ -67,7 +67,7 @@ gulp.task 'default', ->
 
     gulp.watch './source/**/*.jade', ->
       gulp.run 'jade'
-    gulp.watch './source/stylus/*.styl', ->
+    gulp.watch './source/stylus/**/*.styl', ->
       gulp.run 'stylus'
     gulp.watch './source/coffee/*.coffee', ->
       gulp.run 'coffee'

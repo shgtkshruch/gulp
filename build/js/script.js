@@ -1,4 +1,4 @@
 (function() {
-  console.log("coffee");
+  $(function() {});
 
 }).call(this);

@@ -12,6 +12,9 @@ server      = lr()
 open        = require('open')
 connect     = require('connect')
 browserSync = require('browser-sync')
+yamlconfig = require('yaml-config')
+
+config = yamlconfig.readConfig('./data/data.yml')
 
 # task
 
@@ -19,9 +22,10 @@ browserSync = require('browser-sync')
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
   gulp.src('./source/index.jade')
-    .pipe(jade({
+    .pipe(jade(
       pretty: true
-    }))
+      data: config
+    ))
     .pipe(gulp.dest('./build'))
     .pipe(livereload(server))
 

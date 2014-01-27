@@ -5,6 +5,7 @@ gulp        = require('gulp')
 fs          = require('fs')
 yaml        = require('js-yaml')
 gutil       = require('gulp-util')
+concat      = require('gulp-concat')
 jade        = require('gulp-jade')
 stylus      = require('gulp-stylus')
 coffee      = require('gulp-coffee')
@@ -17,11 +18,18 @@ browserSync = require('browser-sync')
 
 # task
 
+# concat
+# https://github.com/wearefractal/gulp-concat
+gulp.task 'concat', ->
+  gulp.src('./source/data/**/*.yml')
+    .pipe(concat('all.yml'))
+    .pipe(gulp.dest('./data'))
+
 # jade
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
-  config = yaml.safeLoad(fs.readFileSync('./data/data.yml', 'utf-8'))
-  gulp.src('./source/index.jade')
+  config = yaml.safeLoad(fs.readFileSync('./data/all.yml', 'utf-8'))
+  gulp.src('./source/**/*.jade')
     .pipe(jade(
       pretty: true
       data: config
@@ -71,7 +79,8 @@ gulp.task 'livereload', ->
     console.log(err) if (err)
 
     gulp.watch './source/**/*.jade', ['jade']
-    gulp.watch './data/**/*.yml', ['jade']
+    gulp.watch './data/all.yml', ['jade']
+    gulp.watch './source/data/**/*.yml', ['concat']
     gulp.watch './source/stylus/**/*.styl', ['stylus']
     gulp.watch './source/coffee/*.coffee', ['coffee']
 

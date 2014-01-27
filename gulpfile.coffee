@@ -45,8 +45,9 @@ gulp.task 'stylus', ->
     .pipe(gulp.dest('./build/css'))
     .pipe(livereload(server))
 
-#server
-gulp.task 'server', ->
+# connect
+# https://github.com/senchalabs/connect
+gulp.task 'connect', ->
   connect.createServer(
     connect.static('./build/')
   ).listen(8080)
@@ -75,4 +76,4 @@ gulp.task 'livereload', ->
     gulp.watch './source/coffee/*.coffee', ['coffee']
 
 # defalut task
-gulp.task 'default', ['server', 'open', 'livereload']
+gulp.task 'default', ['connect', 'open', 'livereload']

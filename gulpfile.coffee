@@ -9,6 +9,7 @@ newer       = require 'gulp-newer'
 stylus      = require 'gulp-stylus'
 coffee      = require 'gulp-coffee'
 concat      = require 'gulp-concat'
+imagemin    = require 'gulp-imagemin'
 livereload  = require 'gulp-livereload'
 fs          = require 'fs'
 open        = require 'open'
@@ -69,6 +70,14 @@ gulp.task 'sass', ->
     .pipe(gulp.dest './build/css')
     .pipe(livereload server)
 
+# imagemin
+# https://github.com/sindresorhus/gulp-imagemin
+gulp.task 'imagemin', ->
+  gulp.src('./source/image/**/*')
+    .pipe(newer './build/image/**/*')
+    .pipe(imagemin())
+    .pipe(gulp.dest './build/image')
+
 # connect
 # https://github.com/senchalabs/connect
 gulp.task 'connect', ->
@@ -97,8 +106,10 @@ gulp.task 'livereload', ->
     gulp.watch './source/**/*.jade', ['jade']
     gulp.watch './source/data/**/*.yml', ['concat']
     gulp.watch './source/stylus/**/*.styl', ['stylus']
-    gulp.watch './source/sass/**/*.scss', ['sass']
+    # gulp.watch './source/sass/**/*.scss', ['sass']
     gulp.watch './source/coffee/*.coffee', ['coffee']
 
 # defalut task
 gulp.task 'default', ['jade', 'stylus', 'coffee', 'connect', 'open', 'livereload']
+gulp.task 'i', ['imagemin']
+gulp.task 's', ['browser-sync']

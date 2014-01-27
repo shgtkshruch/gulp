@@ -4,6 +4,7 @@
 gulp        = require 'gulp'
 gutil       = require 'gulp-util'
 jade        = require 'gulp-jade'
+sass        = require 'gulp-sass'
 newer       = require 'gulp-newer'
 stylus      = require 'gulp-stylus'
 coffee      = require 'gulp-coffee'
@@ -57,6 +58,17 @@ gulp.task 'stylus', ->
     .pipe(gulp.dest './build/css')
     .pipe(livereload server)
 
+# sass
+# https://github.com/dlmanning/gulp-sass
+gulp.task 'sass', ->
+  gulp.src('./source/sass/**/*.scss')
+    .pipe(sass(
+      outputStyle: 'expanded'
+      imagePath: 'image/'
+    ))
+    .pipe(gulp.dest './build/css')
+    .pipe(livereload server)
+
 # connect
 # https://github.com/senchalabs/connect
 gulp.task 'connect', ->
@@ -85,6 +97,7 @@ gulp.task 'livereload', ->
     gulp.watch './source/**/*.jade', ['jade']
     gulp.watch './source/data/**/*.yml', ['concat']
     gulp.watch './source/stylus/**/*.styl', ['stylus']
+    gulp.watch './source/sass/**/*.scss', ['sass']
     gulp.watch './source/coffee/*.coffee', ['coffee']
 
 # defalut task

@@ -2,6 +2,8 @@
 
 # require
 gulp        = require('gulp')
+fs          = require('fs')
+yaml        = require('js-yaml')
 gutil       = require('gulp-util')
 jade        = require('gulp-jade')
 stylus      = require('gulp-stylus')
@@ -12,15 +14,13 @@ server      = lr()
 open        = require('open')
 connect     = require('connect')
 browserSync = require('browser-sync')
-yamlconfig = require('yaml-config')
-
-config = yamlconfig.readConfig('./data/data.yml')
 
 # task
 
 # jade
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
+  config = yaml.safeLoad(fs.readFileSync('./data/data.yml', 'utf-8'))
   gulp.src('./source/index.jade')
     .pipe(jade(
       pretty: true
@@ -45,6 +45,12 @@ gulp.task 'stylus', ->
     .pipe(gulp.dest('./build/css'))
     .pipe(livereload(server))
 
+#server
+gulp.task 'server', ->
+  connect.createServer(
+    connect.static('./build/')
+  ).listen(8080)
+
 # open
 # https://github.com/pwnall/node-open
 gulp.task 'open', ->
@@ -57,21 +63,16 @@ gulp.task 'browser-sync', ->
     server:
       baseDir: './build'
 
-
-# defalut task
-gulp.task 'default', ->
-  connect.createServer(
-    connect.static('./build/')
-  ).listen(8080)
-
-  gulp.run 'open'
-
+# livereload
+# https://github.com/vohof/gulp-livereload
+gulp.task 'livereload', ->
   server.listen 35729, (err) ->
     console.log(err) if (err)
 
-    gulp.watch './source/**/*.jade', ->
-      gulp.run 'jade'
-    gulp.watch './source/stylus/**/*.styl', ->
-      gulp.run 'stylus'
-    gulp.watch './source/coffee/*.coffee', ->
-      gulp.run 'coffee'
+    gulp.watch './source/**/*.jade', ['jade']
+    gulp.watch './data/**/*.yml', ['jade']
+    gulp.watch './source/stylus/**/*.styl', ['stylus']
+    gulp.watch './source/coffee/*.coffee', ['coffee']
+
+# defalut task
+gulp.task 'default', ['server', 'open', 'livereload']

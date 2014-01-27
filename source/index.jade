@@ -1,13 +1,6 @@
-- var _ = index
-doctype html
-html(lang='ja')
-head
-  meta(charset='UTF-8')
-  title= _.title
-  link(rel='stylesheet', href='css/style.css', media='all')
-body
-  h1= _.h1
-  a(href="./page1.html") page1
-  script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
-  script(src='js/script.js')
-  script(src='//localhost:35729/livereload.js')
+extend ./layout/layout.jade
+block title
+  title= index.title
+block content
+  h1= index.h1
+  a(href="/page1/page1.html") page1

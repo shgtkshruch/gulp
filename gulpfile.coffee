@@ -2,13 +2,16 @@
 
 # require
 gulp        = require 'gulp'
+gulpif      = require 'gulp-if'
 gutil       = require 'gulp-util'
 jade        = require 'gulp-jade'
 sass        = require 'gulp-sass'
+clean       = require 'gulp-clean'
 newer       = require 'gulp-newer'
 stylus      = require 'gulp-stylus'
 coffee      = require 'gulp-coffee'
 concat      = require 'gulp-concat'
+embedlr     = require 'gulp-embedlr'
 imagemin    = require 'gulp-imagemin'
 livereload  = require 'gulp-livereload'
 fs          = require 'fs'
@@ -19,7 +22,33 @@ lr          = require 'tiny-lr'
 browserSync = require 'browser-sync'
 server      = lr()
 
+jade_src = [
+  './source/**/*.jade',
+  '!./source/layout/**/*.jade',
+  '!./source/include/**/*.jade'
+]
+
 # task
+
+# initial task
+gulp.task 'init', ['concat'], ->
+  gulp.src('./source/**/*.jade')
+    .pipe(gulp.dest './tmp')
+
+  contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
+  gulp.src(jade_src)
+    .pipe(jade(
+      pretty: true
+      data: contents
+    ))
+    .pipe(gulpif gutil.env.dev, embedlr())
+    .pipe(gulp.dest './build')
+
+# clean
+# https://github.com/peter-vilja/gulp-clean
+gulp.task 'clean', ->
+  gulp.src(['./data', './build', './tmp'])
+    .pipe(clean())
 
 # concat
 # https://github.com/wearefractal/gulp-concat
@@ -33,13 +62,14 @@ gulp.task 'concat', ->
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
   contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
-  gulp.src('./source/**/*.jade')
+  gulp.src(jade_src)
     .pipe(newer './tmp')
     .pipe(gulp.dest './tmp')
     .pipe(jade(
       pretty: true
       data: contents
     ))
+    .pipe(gulpif gutil.env.dev, embedlr())
     .pipe(gulp.dest './build')
     .pipe(livereload server)
 
@@ -84,11 +114,8 @@ gulp.task 'connect', ->
   connect.createServer(
     connect.static './build/'
   ).listen 8080
-
-# open
-# https://github.com/pwnall/node-open
-gulp.task 'open', ->
-  open 'http://localhost:8080/'
+  console.log('Listening on :8080')
+  open 'http://localhost:8080'
 
 # browserSync
 # https://github.com/shakyShane/gulp-browser-sync
@@ -97,9 +124,8 @@ gulp.task 'browser-sync', ->
     server:
       baseDir: './build'
 
-# livereload
-# https://github.com/vohof/gulp-livereload
-gulp.task 'livereload', ->
+# defalut task
+gulp.task 'default', ['init', 'concat', 'connect'], ->
   server.listen 35729, (err) ->
     console.log err if (err)
 
@@ -109,7 +135,6 @@ gulp.task 'livereload', ->
     # gulp.watch './source/sass/**/*.scss', ['sass']
     gulp.watch './source/coffee/*.coffee', ['coffee']
 
-# defalut task
-gulp.task 'default', ['jade', 'stylus', 'coffee', 'connect', 'open', 'livereload']
 gulp.task 'i', ['imagemin']
 gulp.task 's', ['browser-sync']
+gulp.task 'c', ['clean']

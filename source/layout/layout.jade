@@ -1,11 +1,9 @@
+block mainVars
+
 doctype html
 html(lang='ja')
-head
-  meta(charset='UTF-8')
-  block title
-  link(rel='stylesheet', href='/css/style.css', media='all')
-body
+  include default-partials/html-head
+body(class=page_class)
   block content
   script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
   script(src='/js/script.js')
-  script(src='//localhost:35729/livereload.js')

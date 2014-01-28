@@ -1,6 +1,10 @@
 extend ./layout/layout.jade
-block title
-  title= index.title
+
+append mainVars
+  - title = index.title
+  - page_class = 'page'
 block content
   h1= index.h1
+  h2 h4
+  p Elit dolorum unde faci:lis dignissimos amet dolorem dignissimos saepe optio! Ipsa in vero distinctio voluptatibus numquam. Voluptatum totam illo eaque id veniam laborum? Inventore rem odio earum delectus itaque! Labore?
   a(href="/page1/page1.html") page1

@@ -1,6 +1,7 @@
 'use strict'
 
 # require
+
 gulp        = require 'gulp'
 gulpif      = require 'gulp-if'
 gutil       = require 'gulp-util'
@@ -22,9 +23,14 @@ lr          = require 'tiny-lr'
 browserSync = require 'browser-sync'
 server      = lr()
 
+# confing
+
+SERVERPORT = '8080'
+LIVERELOADPORT = '35729'
+
 jade_src = [
-  './source/**/*.jade',
-  '!./source/layout/**/*.jade',
+  './source/**/*.jade'
+  '!./source/layout/**/*.jade'
   '!./source/include/**/*.jade'
 ]
 
@@ -34,20 +40,12 @@ jade_src = [
 gulp.task 'init', ['concat'], ->
   gulp.src('./source/**/*.jade')
     .pipe(gulp.dest './tmp')
-
-  contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
-  gulp.src(jade_src)
-    .pipe(jade(
-      pretty: true
-      data: contents
-    ))
-    .pipe(gulpif gutil.env.dev, embedlr())
-    .pipe(gulp.dest './build')
+  gulp.start 'jade'
 
 # clean
 # https://github.com/peter-vilja/gulp-clean
 gulp.task 'clean', ->
-  gulp.src(['./data', './build', './tmp'])
+  gulp.src(['./data', './build', './tmp'], read: false)
     .pipe(clean())
 
 # concat
@@ -76,7 +74,7 @@ gulp.task 'jade', ->
 # coffee
 # https://github.com/wearefractal/gulp-coffee
 gulp.task 'coffee', ->
-  gulp.src('./source/coffee/*.coffee')
+  gulp.src('./source/coffee/**/*.coffee')
     .pipe(coffee())
     .pipe(gulp.dest './build/js')
     .pipe(livereload server)
@@ -84,8 +82,8 @@ gulp.task 'coffee', ->
 # stylus
 # https://github.com/stevelacy/gulp-stylus
 gulp.task 'stylus', ->
-  gulp.src('./source/stylus/*.styl')
-    .pipe(stylus())
+  gulp.src('./source/stylus/style.styl')
+    .pipe(stylus(use: ['nib']))
     .pipe(gulp.dest './build/css')
     .pipe(livereload server)
 
@@ -105,7 +103,11 @@ gulp.task 'sass', ->
 gulp.task 'imagemin', ->
   gulp.src('./source/image/**/*')
     .pipe(newer './build/image/**/*')
-    .pipe(imagemin())
+    .pipe(imagemin(
+      optimizationLevel: 3
+      progressive: true
+      interlaced: true
+    ))
     .pipe(gulp.dest './build/image')
 
 # connect
@@ -113,20 +115,21 @@ gulp.task 'imagemin', ->
 gulp.task 'connect', ->
   connect.createServer(
     connect.static './build/'
-  ).listen 8080
-  console.log('Listening on :8080')
-  open 'http://localhost:8080'
+  ).listen SERVERPORT
+  open 'http://localhost:' + SERVERPORT
 
 # browserSync
 # https://github.com/shakyShane/gulp-browser-sync
 gulp.task 'browser-sync', ->
-  browserSync.init ['build/**/*.html', 'build/**/*.css'],
+  browserSync.init ['./build/**/*.html', './build/**/*.css'],
     server:
       baseDir: './build'
 
 # defalut task
-gulp.task 'default', ['init', 'concat', 'connect'], ->
-  server.listen 35729, (err) ->
+
+gulp.task 'default', ['init'], ->
+  gulp.start 'connect'
+  server.listen LIVERELOADPORT, (err) ->
     console.log err if (err)
 
     gulp.watch './source/**/*.jade', ['jade']

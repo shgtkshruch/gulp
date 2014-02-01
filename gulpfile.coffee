@@ -9,6 +9,7 @@ jade        = require 'gulp-jade'
 sass        = require 'gulp-sass'
 clean       = require 'gulp-clean'
 newer       = require 'gulp-newer'
+notify      = require 'gulp-notify'
 stylus      = require 'gulp-stylus'
 coffee      = require 'gulp-coffee'
 concat      = require 'gulp-concat'
@@ -55,6 +56,9 @@ gulp.task 'concat', ->
     .pipe newer './data/all.yml'
     .pipe concat 'all.yml'
     .pipe gulp.dest './data'
+    .pipe notify 
+      title: 'Concat task complete'
+      message: '<%= file.relative %>'
 
 # jade
 # https://github.com/phated/gulp-jade
@@ -69,6 +73,9 @@ gulp.task 'jade', ->
     .pipe gulpif gutil.env.dev, embedlr()
     .pipe gulp.dest './build'
     .pipe livereload server
+    .pipe notify 
+      title: 'Jade task complete'
+      message: '<%= file.relative %>'
 
 # coffee
 # https://github.com/wearefractal/gulp-coffee
@@ -77,6 +84,9 @@ gulp.task 'coffee', ->
     .pipe coffee()
     .pipe gulp.dest './build/js'
     .pipe livereload server
+    .pipe notify 
+      title: 'Coffee task complete'
+      message: '<%= file.relative %>'
 
 # stylus
 # https://github.com/stevelacy/gulp-stylus
@@ -85,6 +95,9 @@ gulp.task 'stylus', ->
     .pipe stylus use: ['nib']
     .pipe gulp.dest './build/css'
     .pipe livereload server
+    .pipe notify 
+      title: 'Stylus task complete'
+      message: '<%= file.relative %>'
 
 # sass
 # https://github.com/dlmanning/gulp-sass
@@ -95,6 +108,9 @@ gulp.task 'sass', ->
       imagePath: 'image/'
     .pipe gulp.dest './build/css'
     .pipe livereload server
+    .pipe notify 
+      title: 'Sass task complete'
+      message: '<%= file.relative %>'
 
 # imagemin
 # https://github.com/sindresorhus/gulp-imagemin
@@ -106,6 +122,9 @@ gulp.task 'imagemin', ->
       progressive: true
       interlaced: true
     .pipe gulp.dest './build/image'
+    .pipe notify 
+      title: 'Imagemin task complete'
+      message: '<%= file.relative %>'
 
 # connect
 # https://github.com/senchalabs/connect
@@ -113,7 +132,8 @@ gulp.task 'connect', ->
   connect.createServer(
     connect.static './build/'
   ).listen SERVERPORT
-  open 'http://localhost:' + SERVERPORT
+  livereload server
+  # open 'http://localhost:' + SERVERPORT
 
 # browserSync
 # https://github.com/shakyShane/gulp-browser-sync

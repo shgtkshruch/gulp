@@ -27,6 +27,6 @@
     "js-yaml": "~3.0.1",
     "connect": "~2.12.0",
     "browser-sync": "~0.5.0",
-    "coffee-script": "~1.6.3"
+    "coffee-script": "~1.7.1"
   }
 }

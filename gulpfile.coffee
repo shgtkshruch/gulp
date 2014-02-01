@@ -38,77 +38,74 @@ jade_src = [
 
 # initial task
 gulp.task 'init', ['concat'], ->
-  gulp.src('./source/**/*.jade')
-    .pipe(gulp.dest './tmp')
+  gulp.src './source/**/*.jade'
+    .pipe gulp.dest './tmp'
   gulp.start 'jade'
 
 # clean
 # https://github.com/peter-vilja/gulp-clean
 gulp.task 'clean', ->
-  gulp.src(['./data', './build', './tmp'], read: false)
-    .pipe(clean())
+  gulp.src ['./data', './build', './tmp'], read: false
+    .pipe clean()
 
 # concat
 # https://github.com/wearefractal/gulp-concat
 gulp.task 'concat', ->
-  gulp.src('./source/data/**/*.yml')
-    .pipe(newer './data/all.yml')
-    .pipe(concat 'all.yml')
-    .pipe(gulp.dest './data')
+  gulp.src './source/data/**/*.yml'
+    .pipe newer './data/all.yml'
+    .pipe concat 'all.yml'
+    .pipe gulp.dest './data'
 
 # jade
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
   contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
-  gulp.src(jade_src)
-    .pipe(newer './tmp')
-    .pipe(gulp.dest './tmp')
-    .pipe(jade(
+  gulp.src jade_src
+    .pipe newer './tmp'
+    .pipe gulp.dest './tmp'
+    .pipe jade
       pretty: true
       data: contents
-    ))
-    .pipe(gulpif gutil.env.dev, embedlr())
-    .pipe(gulp.dest './build')
-    .pipe(livereload server)
+    .pipe gulpif gutil.env.dev, embedlr()
+    .pipe gulp.dest './build'
+    .pipe livereload server
 
 # coffee
 # https://github.com/wearefractal/gulp-coffee
 gulp.task 'coffee', ->
-  gulp.src('./source/coffee/**/*.coffee')
-    .pipe(coffee())
-    .pipe(gulp.dest './build/js')
-    .pipe(livereload server)
+  gulp.src './source/coffee/**/*.coffee'
+    .pipe coffee()
+    .pipe gulp.dest './build/js'
+    .pipe livereload server
 
 # stylus
 # https://github.com/stevelacy/gulp-stylus
 gulp.task 'stylus', ->
-  gulp.src('./source/stylus/style.styl')
-    .pipe(stylus(use: ['nib']))
-    .pipe(gulp.dest './build/css')
-    .pipe(livereload server)
+  gulp.src './source/stylus/style.styl'
+    .pipe stylus use: ['nib']
+    .pipe gulp.dest './build/css'
+    .pipe livereload server
 
 # sass
 # https://github.com/dlmanning/gulp-sass
 gulp.task 'sass', ->
-  gulp.src('./source/sass/**/*.scss')
-    .pipe(sass(
+  gulp.src './source/sass/**/*.scss'
+    .pipe sass
       outputStyle: 'expanded'
       imagePath: 'image/'
-    ))
-    .pipe(gulp.dest './build/css')
-    .pipe(livereload server)
+    .pipe gulp.dest './build/css'
+    .pipe livereload server
 
 # imagemin
 # https://github.com/sindresorhus/gulp-imagemin
 gulp.task 'imagemin', ->
-  gulp.src('./source/image/**/*')
-    .pipe(newer './build/image/**/*')
-    .pipe(imagemin(
+  gulp.src './source/image/**/*'
+    .pipe newer './build/image/**/*'
+    .pipe imagemin
       optimizationLevel: 3
       progressive: true
       interlaced: true
-    ))
-    .pipe(gulp.dest './build/image')
+    .pipe gulp.dest './build/image'
 
 # connect
 # https://github.com/senchalabs/connect

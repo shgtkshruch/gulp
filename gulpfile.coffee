@@ -9,6 +9,7 @@ jade        = require 'gulp-jade'
 sass        = require 'gulp-sass'
 clean       = require 'gulp-clean'
 newer       = require 'gulp-newer'
+filter      = require 'gulp-filter'
 notify      = require 'gulp-notify'
 stylus      = require 'gulp-stylus'
 coffee      = require 'gulp-coffee'
@@ -29,25 +30,26 @@ server      = lr()
 SERVERPORT = '8080'
 LIVERELOADPORT = '35729'
 
-jade_src = [
-  './source/**/*.jade'
-  '!./source/layout/**/*.jade'
-  '!./source/include/**/*.jade'
-]
-
 # task
 
 # initial task
 gulp.task 'init', ['concat'], ->
+  contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
+  gulp.src './source/**/*.jade'
+    .pipe filter '!layout/**'
+    .pipe jade
+      pretty: true
+      data: contents
+    .pipe gulpif gutil.env.dev, embedlr()
+    .pipe gulp.dest './build'
+
   gulp.src './source/**/*.jade'
     .pipe gulp.dest './tmp'
-  gulp.start 'jade'
 
-# clean
-# https://github.com/peter-vilja/gulp-clean
-gulp.task 'clean', ->
-  gulp.src ['./data', './build', './tmp'], read: false
-    .pipe clean()
+# open
+gulp.task 'open', ['init'], ->
+  gulp.start 'connect'
+  open 'http://localhost:' + SERVERPORT
 
 # concat
 # https://github.com/wearefractal/gulp-concat
@@ -60,13 +62,20 @@ gulp.task 'concat', ->
       title: 'Concat task complete'
       message: '<%= file.relative %>'
 
+# clean
+# https://github.com/peter-vilja/gulp-clean
+gulp.task 'clean', ->
+  gulp.src ['./data', './build', './tmp'], read: false
+    .pipe clean()
+
 # jade
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
   contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
-  gulp.src jade_src
+  gulp.src './source/**/*.jade'
     .pipe newer './tmp'
     .pipe gulp.dest './tmp'
+    .pipe filter '!layout/**'
     .pipe jade
       pretty: true
       data: contents
@@ -133,7 +142,6 @@ gulp.task 'connect', ->
     connect.static './build/'
   ).listen SERVERPORT
   livereload server
-  # open 'http://localhost:' + SERVERPORT
 
 # browserSync
 # https://github.com/shakyShane/gulp-browser-sync
@@ -144,7 +152,7 @@ gulp.task 'browser-sync', ->
 
 # defalut task
 
-gulp.task 'default', ['init'], ->
+gulp.task 'default', ->
   gulp.start 'connect'
   server.listen LIVERELOADPORT, (err) ->
     console.log err if (err)
@@ -155,6 +163,7 @@ gulp.task 'default', ['init'], ->
     # gulp.watch './source/sass/**/*.scss', ['sass']
     gulp.watch './source/coffee/*.coffee', ['coffee']
 
+gulp.task 'o', ['open']
 gulp.task 'i', ['imagemin']
 gulp.task 's', ['browser-sync']
 gulp.task 'c', ['clean']

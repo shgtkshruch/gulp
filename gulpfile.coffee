@@ -34,20 +34,8 @@ LIVERELOADPORT = '35729'
 
 # initial task
 gulp.task 'init', ['concat'], ->
-  contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
-  gulp.src './source/**/*.jade'
-    .pipe filter '!layout/**'
-    .pipe jade
-      pretty: true
-      data: contents
-    .pipe gulpif gutil.env.dev, embedlr()
-    .pipe gulp.dest './build'
-
   gulp.src './source/**/*.jade'
     .pipe gulp.dest './tmp'
-
-# open
-gulp.task 'open', ['init'], ->
   gulp.start 'connect'
   open 'http://localhost:' + SERVERPORT
 
@@ -65,8 +53,11 @@ gulp.task 'concat', ->
 # clean
 # https://github.com/peter-vilja/gulp-clean
 gulp.task 'clean', ->
-  gulp.src ['./data', './build', './tmp'], read: false
+  gulp.src ['./data', './tmp'], read: false
     .pipe clean()
+    .pipe notify 
+      title: 'Clean task complete'
+      message: '<%= file.relative %>'
 
 # jade
 # https://github.com/phated/gulp-jade
@@ -141,7 +132,6 @@ gulp.task 'connect', ->
   connect.createServer(
     connect.static './build/'
   ).listen SERVERPORT
-  livereload server
 
 # browserSync
 # https://github.com/shakyShane/gulp-browser-sync
@@ -150,10 +140,9 @@ gulp.task 'browser-sync', ->
     server:
       baseDir: './build'
 
-# defalut task
-
-gulp.task 'default', ->
-  gulp.start 'connect'
+# livereload
+# https://github.com/vohof/gulp-livereload
+gulp.task 'watch', ->
   server.listen LIVERELOADPORT, (err) ->
     console.log err if (err)
 
@@ -162,8 +151,15 @@ gulp.task 'default', ->
     gulp.watch './source/stylus/**/*.styl', ['stylus']
     # gulp.watch './source/sass/**/*.scss', ['sass']
     gulp.watch './source/coffee/*.coffee', ['coffee']
+    gulp.watch './source/image/**/*', ['imagemin']
 
-gulp.task 'o', ['open']
-gulp.task 'i', ['imagemin']
+# defalut task
+
+gulp.task 'default', ['watch'], ->
+  gulp.start 'connect'
+
+gulp.task 'i', ['init']
+
 gulp.task 's', ['browser-sync']
+
 gulp.task 'c', ['clean']

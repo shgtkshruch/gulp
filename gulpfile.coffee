@@ -6,25 +6,25 @@ gulp        = require 'gulp'
 $           = require('gulp-load-plugins')()
 fs          = require 'fs'
 open        = require 'open'
-connect     = require 'connect'
 yaml        = require 'js-yaml'
-lr          = require 'tiny-lr'
 browserSync = require 'browser-sync'
-server      = lr()
 
 # confing
 
-SERVERPORT = '8080'
-LIVERELOADPORT = '35729'
+config = 
+  SERVERPORT: '8080'
 
 # task
 
-# initial task
-gulp.task 'init', ['concat'], ->
-  gulp.src './source/**/*.jade'
-    .pipe gulp.dest './tmp'
-  gulp.start 'connect'
-  open 'http://localhost:' + SERVERPORT
+# connect
+# https://github.com/avevlad/gulp-connect
+gulp.task 'connect', $.connect.server
+  root: __dirname + '/build'
+  port: config.SERVERPORT
+  livereload: true
+  open:
+    file: 'index.html'
+    browser: 'chrome'
 
 # concat
 # https://github.com/wearefractal/gulp-concat
@@ -57,9 +57,8 @@ gulp.task 'jade', ->
     .pipe $.jade
       pretty: true
       data: contents
-    .pipe $.if $.util.env.dev, $.embedlr()
     .pipe gulp.dest './build'
-    .pipe $.livereload server
+    .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Jade task complete'
       message: '<%= file.relative %>'
@@ -70,7 +69,7 @@ gulp.task 'coffee', ->
   gulp.src './source/coffee/**/*.coffee'
     .pipe $.coffee()
     .pipe gulp.dest './build/js'
-    .pipe $.livereload server
+    .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Coffee task complete'
       message: '<%= file.relative %>'
@@ -81,7 +80,7 @@ gulp.task 'stylus', ->
   gulp.src './source/stylus/style.styl'
     .pipe $.stylus use: ['nib']
     .pipe gulp.dest './build/css'
-    .pipe $.livereload server
+    .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Stylus task complete'
       message: '<%= file.relative %>'
@@ -94,7 +93,7 @@ gulp.task 'sass', ->
       outputStyle: 'expanded'
       imagePath: 'image/'
     .pipe gulp.dest './build/css'
-    .pipe $.livereload server
+    .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Sass task complete'
       message: '<%= file.relative %>'
@@ -109,16 +108,10 @@ gulp.task 'imagemin', ->
       progressive: true
       interlaced: true
     .pipe gulp.dest './build/image'
+    .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Imagemin task complete'
       message: '<%= file.relative %>'
-
-# connect
-# https://github.com/senchalabs/connect
-gulp.task 'connect', ->
-  connect.createServer(
-    connect.static './build/'
-  ).listen SERVERPORT
 
 # browserSync
 # https://github.com/shakyShane/gulp-browser-sync
@@ -127,25 +120,21 @@ gulp.task 'browser-sync', ->
     server:
       baseDir: './build'
 
-# livereload
-# https://github.com/vohof/gulp-livereload
-gulp.task 'watch', ->
-  server.listen LIVERELOADPORT, (err) ->
-    console.log err if (err)
-
-    gulp.watch './source/**/*.jade', ['jade']
-    gulp.watch './source/data/**/*.yml', ['concat']
-    gulp.watch './source/stylus/**/*.styl', ['stylus']
-    # gulp.watch './source/sass/**/*.scss', ['sass']
-    gulp.watch './source/coffee/*.coffee', ['coffee']
-    gulp.watch './source/image/**/*', ['imagemin']
-
 # defalut task
 
-gulp.task 'default', ['watch'], ->
-  gulp.start 'connect'
+gulp.task 'default', ['connect'], ->
+  gulp.watch './source/**/*.jade', ['jade']
+  gulp.watch './source/data/**/*.yml', ['concat']
+  gulp.watch './source/stylus/**/*.styl', ['stylus']
+  # gulp.watch './source/sass/**/*.scss', ['sass']
+  gulp.watch './source/coffee/*.coffee', ['coffee']
+  gulp.watch './source/image/**/*', ['imagemin']
 
-gulp.task 'i', ['init']
+gulp.task 'i', ->
+  gulp.src './source/**/*.jade'
+    .pipe gulp.dest './tmp'
+  gulp.start 'connect'
+  open 'http://localhost:' + config.SERVERPORT
 
 gulp.task 's', ['browser-sync']
 

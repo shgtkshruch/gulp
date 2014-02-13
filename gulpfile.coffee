@@ -66,7 +66,9 @@ gulp.task 'jade', ->
 # coffee
 # https://github.com/wearefractal/gulp-coffee
 gulp.task 'coffee', ->
-  gulp.src './source/coffee/**/*.coffee'
+  gulp.src './source/**/*.coffee'
+    .pipe $.newer './tmp'
+    .pipe gulp.dest './tmp'
     .pipe $.coffee()
     .pipe gulp.dest './build/js'
     .pipe $.connect.reload()
@@ -101,8 +103,8 @@ gulp.task 'sass', ->
 # imagemin
 # https://github.com/sindresorhus/gulp-imagemin
 gulp.task 'imagemin', ->
-  gulp.src './source/image/**/*'
-    .pipe $.newer './build/image/**/*'
+  gulp.src './source/image/**/*.{png, jpg, gif}'
+    .pipe $.newer './build/image/**/*.{png, jpg, gif}'
     .pipe $.imagemin
       optimizationLevel: 3
       progressive: true
@@ -127,11 +129,10 @@ gulp.task 'default', ['connect'], ->
   gulp.watch './source/data/**/*.yml', ['concat']
   gulp.watch './source/stylus/**/*.styl', ['stylus']
   # gulp.watch './source/sass/**/*.scss', ['sass']
-  gulp.watch './source/coffee/*.coffee', ['coffee']
-  gulp.watch './source/image/**/*', ['imagemin']
+  gulp.watch './source/coffee/**/*.coffee', ['coffee']
 
-gulp.task 'i', ->
-  gulp.src './source/**/*.jade'
+gulp.task 'i', ['concat'], ->
+  gulp.src ['./source/**/*.jade', './source/**/*.coffee']
     .pipe gulp.dest './tmp'
   gulp.start 'connect'
   open 'http://localhost:' + config.SERVERPORT

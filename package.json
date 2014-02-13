@@ -10,8 +10,6 @@
   "license": "BSD-2-Clause",
   "devDependencies": {
     "gulp": "~3.5.0",
-    "gulp-if": "0.0.5",
-    "gulp-util": "~2.2.14",
     "gulp-jade": "~0.4.1",
     "gulp-sass": "~0.6.0",
     "gulp-newer": "~0.2.1",
@@ -22,7 +20,7 @@
     "gulp-coffee": "~1.4.1",
     "gulp-notify": "~0.4.0",
     "gulp-connect": "~0.3.1",
-    "gulp-imagemin": "~0.1.4",
+    "gulp-imagemin": "~0.1.5",
     "gulp-load-plugins": "~0.3.0",
     "open": "0.0.4",
     "js-yaml": "~3.0.1",

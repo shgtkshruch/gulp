@@ -13,6 +13,17 @@ browserSync = require 'browser-sync'
 
 config = 
   SERVERPORT: '8080'
+  SOURCE: './source'
+  BUILD: './build'
+  DATA: './data'
+
+source =
+  jade: config.SOURCE + '/**/*.jade'
+  stylus: config.SOURCE + '/**/*.styl'
+  sass: config.SOURCE + '/**/*.sass'
+  coffee: config.SOURCE + '/**/*.coffee'
+  yaml: config.SOURCE + '/**/*.yml'
+  image: config.SOURCE + '/**/*.{png, jpg, gif}'
 
 # task
 
@@ -29,10 +40,9 @@ gulp.task 'connect', $.connect.server
 # concat
 # https://github.com/wearefractal/gulp-concat
 gulp.task 'concat', ->
-  gulp.src './source/data/**/*.yml'
-    .pipe $.newer './data/all.yml'
+  gulp.src source.yaml
     .pipe $.concat 'all.yml'
-    .pipe gulp.dest './data'
+    .pipe gulp.dest config.DATA
     .pipe $.notify 
       title: 'Concat task complete'
       message: '<%= file.relative %>'
@@ -40,7 +50,7 @@ gulp.task 'concat', ->
 # clean
 # https://github.com/peter-vilja/gulp-clean
 gulp.task 'clean', ->
-  gulp.src ['./data', './tmp'], read: false
+  gulp.src ['./data'], read: false
     .pipe $.clean()
     .pipe $.notify 
       title: 'Clean task complete'
@@ -49,15 +59,15 @@ gulp.task 'clean', ->
 # jade
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
-  contents = yaml.safeLoad fs.readFileSync './data/all.yml', 'utf-8'
-  gulp.src './source/**/*.jade'
-    .pipe $.newer './tmp'
-    .pipe gulp.dest './tmp'
+  contents = yaml.safeLoad fs.readFileSync config.DATA + '/all.yml', 'utf-8'
+  gulp.src source.jade
     .pipe $.filter '!layout/**'
+    .pipe $.changed config.BUILD,
+      extension: '.html'
     .pipe $.jade
       pretty: true
       data: contents
-    .pipe gulp.dest './build'
+    .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Jade task complete'
@@ -66,11 +76,11 @@ gulp.task 'jade', ->
 # coffee
 # https://github.com/wearefractal/gulp-coffee
 gulp.task 'coffee', ->
-  gulp.src './source/**/*.coffee'
-    .pipe $.newer './tmp'
-    .pipe gulp.dest './tmp'
+  gulp.src source.coffee
+    .pipe $.changed config.BUILD,
+      extension: '.js'
     .pipe $.coffee()
-    .pipe gulp.dest './build/js'
+    .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Coffee task complete'
@@ -79,9 +89,11 @@ gulp.task 'coffee', ->
 # stylus
 # https://github.com/stevelacy/gulp-stylus
 gulp.task 'stylus', ->
-  gulp.src './source/stylus/style.styl'
+  gulp.src config.SOURCE + '/**/style.styl'
+    .pipe $.changed config.BUILD,
+      extension: '.css'
     .pipe $.stylus use: ['nib']
-    .pipe gulp.dest './build/css'
+    .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Stylus task complete'
@@ -90,11 +102,12 @@ gulp.task 'stylus', ->
 # sass
 # https://github.com/dlmanning/gulp-sass
 gulp.task 'sass', ->
-  gulp.src './source/sass/**/*.scss'
+  gulp.src config.SOURCE + '/**/style.sass'
+    .pipe $.changed config.BUILD
     .pipe $.sass
       outputStyle: 'expanded'
       imagePath: 'image/'
-    .pipe gulp.dest './build/css'
+    .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Sass task complete'
@@ -103,13 +116,13 @@ gulp.task 'sass', ->
 # imagemin
 # https://github.com/sindresorhus/gulp-imagemin
 gulp.task 'imagemin', ->
-  gulp.src './source/image/**/*.{png, jpg, gif}'
-    .pipe $.newer './build/image/**/*.{png, jpg, gif}'
+  gulp.src source.image
+    .pipe $.changed config.BUILD
     .pipe $.imagemin
       optimizationLevel: 3
       progressive: true
       interlaced: true
-    .pipe gulp.dest './build/image'
+    .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
     .pipe $.notify 
       title: 'Imagemin task complete'
@@ -120,20 +133,18 @@ gulp.task 'imagemin', ->
 gulp.task 'browser-sync', ->
   browserSync.init ['./build/**/*.html', './build/**/*.css'],
     server:
-      baseDir: './build'
+      baseDir: config.BUILD
 
 # defalut task
 
 gulp.task 'default', ['connect'], ->
-  gulp.watch './source/**/*.jade', ['jade']
-  gulp.watch './source/data/**/*.yml', ['concat']
-  gulp.watch './source/stylus/**/*.styl', ['stylus']
-  # gulp.watch './source/sass/**/*.scss', ['sass']
-  gulp.watch './source/coffee/**/*.coffee', ['coffee']
+  gulp.watch source.jade, ['jade']
+  gulp.watch source.yaml, ['concat']
+  gulp.watch source.stylus, ['stylus']
+  # gulp.watch source.sass, ['sass']
+  gulp.watch source.coffee, ['coffee']
 
 gulp.task 'i', ['concat'], ->
-  gulp.src ['./source/**/*.jade', './source/**/*.coffee']
-    .pipe gulp.dest './tmp'
   gulp.start 'connect'
   open 'http://localhost:' + config.SERVERPORT
 

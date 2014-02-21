@@ -11,7 +11,7 @@ browserSync = require 'browser-sync'
 
 # confing
 
-config = 
+config =
   SERVERPORT: '8080'
   SOURCE: './source'
   BUILD: './build'
@@ -30,12 +30,12 @@ source =
 # connect
 # https://github.com/avevlad/gulp-connect
 gulp.task 'connect', $.connect.server
-  root: __dirname + '/build'
+  root: config.BUILD
   port: config.SERVERPORT
   livereload: true
-  open:
-    file: 'index.html'
-    browser: 'chrome'
+  # open:
+  #   file: 'index.html'
+  #   browser: 'chrome'
 
 # concat
 # https://github.com/wearefractal/gulp-concat
@@ -43,7 +43,7 @@ gulp.task 'concat', ->
   gulp.src source.yaml
     .pipe $.concat 'all.yml'
     .pipe gulp.dest config.DATA
-    .pipe $.notify 
+    .pipe $.notify
       title: 'Concat task complete'
       message: '<%= file.relative %>'
 
@@ -52,7 +52,7 @@ gulp.task 'concat', ->
 gulp.task 'clean', ->
   gulp.src ['./data'], read: false
     .pipe $.clean()
-    .pipe $.notify 
+    .pipe $.notify
       title: 'Clean task complete'
       message: '<%= file.relative %>'
 
@@ -69,7 +69,7 @@ gulp.task 'jade', ->
       data: contents
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
-    .pipe $.notify 
+    .pipe $.notify
       title: 'Jade task complete'
       message: '<%= file.relative %>'
 
@@ -82,34 +82,37 @@ gulp.task 'coffee', ->
     .pipe $.coffee()
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
-    .pipe $.notify 
+    .pipe $.notify
       title: 'Coffee task complete'
       message: '<%= file.relative %>'
 
 # stylus
 # https://github.com/stevelacy/gulp-stylus
 gulp.task 'stylus', ->
-  gulp.src config.SOURCE + '/**/style.styl'
-    .pipe $.changed config.BUILD,
+  gulp.src source.stylus
+    .pipe $.filter '**/style.styl'
+    .pipe $.changed config.BUILD + '/css',
       extension: '.css'
     .pipe $.stylus use: ['nib']
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
-    .pipe $.notify 
+    .pipe $.notify
       title: 'Stylus task complete'
       message: '<%= file.relative %>'
 
 # sass
 # https://github.com/dlmanning/gulp-sass
 gulp.task 'sass', ->
-  gulp.src config.SOURCE + '/**/style.sass'
-    .pipe $.changed config.BUILD
+  gulp.src source.sass
+    .pipe $.filter '**/style.sass'
+    .pipe $.changed config.BUILD + '/css',
+      extension: '.css'
     .pipe $.sass
       outputStyle: 'expanded'
       imagePath: 'image/'
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
-    .pipe $.notify 
+    .pipe $.notify
       title: 'Sass task complete'
       message: '<%= file.relative %>'
 
@@ -124,7 +127,7 @@ gulp.task 'imagemin', ->
       interlaced: true
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
-    .pipe $.notify 
+    .pipe $.notify
       title: 'Imagemin task complete'
       message: '<%= file.relative %>'
 

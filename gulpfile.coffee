@@ -29,13 +29,14 @@ source =
 
 # connect
 # https://github.com/avevlad/gulp-connect
-gulp.task 'connect', $.connect.server
-  root: config.BUILD
-  port: config.SERVERPORT
-  livereload: true
-  # open:
-  #   file: 'index.html'
-  #   browser: 'chrome'
+gulp.task 'connect', -> 
+  $.connect.server
+    root: config.BUILD
+    port: config.SERVERPORT
+    livereload: true
+    # open:
+    #   file: 'index.html'
+    #   browser: 'chrome'
 
 # concat
 # https://github.com/wearefractal/gulp-concat

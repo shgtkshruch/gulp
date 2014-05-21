@@ -20,7 +20,7 @@ config =
 source =
   jade: config.SOURCE + '/**/*.jade'
   stylus: config.SOURCE + '/**/*.styl'
-  sass: config.SOURCE + '/**/*.sass'
+  sass: config.SOURCE + '/**/*.scss'
   coffee: config.SOURCE + '/**/*.coffee'
   yaml: config.SOURCE + '/**/*.yml'
   image: config.SOURCE + '/**/*.{png, jpg, gif}'
@@ -60,14 +60,14 @@ gulp.task 'clean', ->
 # jade
 # https://github.com/phated/gulp-jade
 gulp.task 'jade', ->
-  contents = yaml.safeLoad fs.readFileSync config.DATA + '/all.yml', 'utf-8'
+  # contents = yaml.safeLoad fs.readFileSync config.DATA + '/all.yml', 'utf-8'
   gulp.src source.jade
     .pipe $.filter '!layout/**'
     .pipe $.changed config.BUILD,
       extension: '.html'
     .pipe $.jade
       pretty: true
-      data: contents
+      # data: contents
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
     .pipe $.notify
@@ -105,11 +105,11 @@ gulp.task 'stylus', ->
 # https://github.com/dlmanning/gulp-sass
 gulp.task 'sass', ->
   gulp.src source.sass
-    .pipe $.filter '**/style.sass'
+    .pipe $.filter '**/style.scss'
     .pipe $.changed config.BUILD + '/css',
       extension: '.css'
     .pipe $.sass
-      outputStyle: 'expanded'
+      outputStyle: 'nested'
       imagePath: 'image/'
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
@@ -145,7 +145,7 @@ gulp.task 'default', ['connect'], ->
   gulp.watch source.jade, ['jade']
   gulp.watch source.yaml, ['concat']
   gulp.watch source.stylus, ['stylus']
-  # gulp.watch source.sass, ['sass']
+  gulp.watch source.sass, ['sass']
   gulp.watch source.coffee, ['coffee']
 
 gulp.task 'i', ['concat'], ->

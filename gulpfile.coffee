@@ -13,9 +13,9 @@ browserSync = require 'browser-sync'
 
 config =
   SERVERPORT: '8080'
-  SOURCE: './source'
-  BUILD: './build'
-  DATA: './data'
+  SOURCE: '../source'
+  BUILD: '../build'
+  DATA: '../data'
 
 source =
   jade: config.SOURCE + '/**/*.jade'

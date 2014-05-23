@@ -102,15 +102,15 @@ gulp.task 'stylus', ->
       message: '<%= file.relative %>'
 
 # sass
-# https://github.com/dlmanning/gulp-sass
+# https://github.com/sindresorhus/gulp-ruby-sass
 gulp.task 'sass', ->
   gulp.src source.sass
     .pipe $.filter '**/style.scss'
     .pipe $.changed config.BUILD + '/css',
       extension: '.css'
-    .pipe $.sass
-      outputStyle: 'nested'
-      imagePath: 'image/'
+    .pipe $.rubySass
+      sourcemap: true
+      style: 'expanded'
     .pipe gulp.dest config.BUILD
     .pipe $.connect.reload()
     .pipe $.notify

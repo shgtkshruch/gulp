@@ -92,7 +92,7 @@ gulp.task 'coffee', ->
 gulp.task 'stylus', ->
   gulp.src source.stylus
     .pipe $.filter '**/style.styl'
-    .pipe $.changed config.BUILD + '/css',
+    .pipe $.changed config.BUILD,
       extension: '.css'
     .pipe $.stylus use: ['nib']
     .pipe gulp.dest config.BUILD
@@ -106,7 +106,7 @@ gulp.task 'stylus', ->
 gulp.task 'sass', ->
   gulp.src source.sass
     .pipe $.filter '**/style.scss'
-    .pipe $.changed config.BUILD + '/css',
+    .pipe $.changed config.BUILD,
       extension: '.css'
     .pipe $.rubySass
       sourcemap: true
